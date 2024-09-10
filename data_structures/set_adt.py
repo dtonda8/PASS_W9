@@ -16,7 +16,7 @@ class Set(ABC, Generic[T]):
 
     def __init__(self) -> None:
         """ Initialization. """
-        self.clear()
+        self.size = 0
 
     @abstractmethod
     def __len__(self) -> int:

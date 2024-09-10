@@ -12,37 +12,4 @@ class Node(Generic[T]):
     def __init__(self, item: T = None) -> None:
         """ Node initialiser. """
         self.item = item
-        self.next = None
-
-def get_node_at_index(head: Node[T], index: int):
-    """ Return the node at a given position. """
-    current = head
-    for i in range(index):
-        current = current.next
-    return current
-
-def index(head: Node[T], item: T) -> int:
-        """ Find the position of a given item in the list. """
-        current = head
-        index = 0
-        while current is not None and current.item != item:
-            current = current.next
-            index += 1
-        if current is None:
-            raise ValueError('Item is not in list')
-        else:
-            return index
-
-def append(head, item):
-    """Append item to the end of node-chain with
-       root [head], returning the (possibly updated)
-       head."""
-    new_node = Node(item)
-    if head is None:
-        return new_node
-    else:
-        current = head
-        while current.next is not None:
-            current = current.next
-        current.next = new_node
-        return head
+        self.link = None

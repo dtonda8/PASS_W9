@@ -3,8 +3,9 @@
 """
 
 from __future__ import annotations
-from set import *
-from referential_array import ArrayR
+from data_structures.set_adt import *
+from data_structures.referential_array import ArrayR
+
 
 class ASet(Set[T]):
     """Simple array-based implementation of the set ADT.
@@ -52,7 +53,7 @@ class ASet(Set[T]):
         present in the set should not be added.
         :pre: the set is not full
         :raises Exception: if the set is full.
-        """ 
+        """
         if item not in self:
             if self.is_full():
                 raise Exception("the set if full")
@@ -79,20 +80,20 @@ class ASet(Set[T]):
         """
         res = ASet(len(self.array) + len(other.array))
 
-        for i in range(len(self)):      
+        for i in range(len(self)):
             res.array[i] = self.array[i]
-        res.size = self.size            
-    
+        res.size = self.size
+
         for j in range(len(other)):
             if other.array[j] not in self:
                 res.array[res.size] = other.array[j]
                 res.size += 1
-    
+
         return res
 
     def intersection(self, other: ASet[T]) -> ASet[T]:
         """ Creates a new set equal to the intersection with another one,
-        i.e. the result set should contain the elements that are both in 
+        i.e. the result set should contain the elements that are both in
         self *and* other.
         """
         res = ASet(min(len(self.array), len(other.array)))
@@ -101,12 +102,12 @@ class ASet(Set[T]):
             if self.array[i] in other:
                 res.array[res.size] = self.array[i]
                 res.size += 1
-    
+
         return res
 
     def difference(self, other: ASet[T]) -> ASet[T]:
         """ Creates a new set equal to the difference with another one,
-        i.e. the result set should contain the elements of self that 
+        i.e. the result set should contain the elements of self that
         *are not* in other.
         """
         res = ASet(len(self.array))
@@ -115,7 +116,7 @@ class ASet(Set[T]):
             if self.array[i] not in other:
                 res.array[res.size] = self.array[i]
                 res.size += 1
-    
+
         return res
 
     def __str__(self):
@@ -124,17 +125,3 @@ class ASet(Set[T]):
         for i in range(len(self)):
             elems.append(str(self.array[i]) if type(self.array[i]) != str else "'{0}'".format(self.array[i]))
         return '{' + ', '.join(elems) + '}'
-    
-if __name__ == '__main__':
-    s = ASet(3)
-    s.add(1)
-    s.add(4)
-    print(f'S = {s}')
-    t = ASet(3)
-    t.add(4)
-    t.add(2)
-    t.add(2)
-    print(f'T = {t}')
-
-    print(f'S union T = {s.union(t)}')
-    print(f'S intersect T = {s.intersection(t)}')

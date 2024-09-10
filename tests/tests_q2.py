@@ -2,7 +2,7 @@ import unittest
 from typing import List
 from Q2 import merge
 from ed_utils.decorators import number
-from tests.conversions import AL
+from tests.conversions import AR
 
 
 class Test_Q2(unittest.TestCase):
@@ -16,15 +16,14 @@ class Test_Q2(unittest.TestCase):
 
     @number("2.1")
     def test_examples(self):
-        self.customAssertEqual(merge(AL([1,2,4]), AL([1,3,4])), AL([1,1,2,3,4,4]))
-        self.customAssertEqual(merge(AL([1,4,6,7,11]), AL([5,9])), AL([1,4,5,6,7,9,11]))
-        self.customAssertEqual(merge(AL([]), AL([])), AL([]))
+        self.customAssertEqual(merge(AR([1,2,4]), AR([1,3,4])), AR([1,1,2,3,4,4]))
+        self.customAssertEqual(merge(AR([1,4,6,7,11]), AR([5,9])), AR([1,4,5,6,7,9,11]))
 
     @number("2.2")
     def test_extra(self):
-        self.customAssertEqual(merge(AL([2,3,5]), AL([1,4,6])), AL([1,2,3,4,5,6]))
-        self.customAssertEqual(merge(AL([10,20,30]), AL([15,25,35])), AL([10,15,20,25,30,35]))
-        self.customAssertEqual(merge(AL([100,200,300]), AL([150,250,350])), AL([100,150,200,250,300,350]))
+        self.customAssertEqual(merge(AR([2,3,5]), AR([1,4,6])), AR([1,2,3,4,5,6]))
+        self.customAssertEqual(merge(AR([10,20,30]), AR([15,25,35])), AR([10,15,20,25,30,35]))
+        self.customAssertEqual(merge(AR([100,200,300]), AR([150,250,350])), AR([100,150,200,250,300,350]))
         
 
 if __name__ == '__main__':

@@ -3,18 +3,19 @@
 Defines a Hash Table using Linear Probing for conflict resolution.
 It currently rehashes the primary cluster to handle deletion.
 """
-__author__ = 'Brendon Taylor'
+__author__ = 'Brendon Taylor & Rupert Ebeling'
 __docformat__ = 'reStructuredText'
-__modified__ = '31/03/2023'
+__modified__ = '15/08/2023'
 __since__ = '31/03/2023'
 
 from data_structures.referential_array import ArrayR
 from data_structures.linked_list import LinkedList
 from typing import TypeVar, Generic
+
 T = TypeVar('T')
 
 
-class SeparateChainingHashTable(Generic[T]):
+class HashTableSeparateChaining(Generic[T]):
     """
     Separate Chaining Hash Table
 
@@ -31,7 +32,6 @@ class SeparateChainingHashTable(Generic[T]):
 
     DEFAULT_TABLE_SIZE = 17
     DEFAULT_HASH_BASE = 31
-
 
     def __init__(self, table_size: int = DEFAULT_TABLE_SIZE) -> None:
         """
@@ -53,10 +53,17 @@ class SeparateChainingHashTable(Generic[T]):
         :raises KeyError: when the key doesn't exist
         """
         position = self.hash(key)
+        if self.table[position] is None:
+            raise KeyError(key)
+
         for index, item in enumerate(self.table[position]):
             if item[0] == key:
-                self.table[position].delete_at_index(index)
-                self.count -= 1 
+                if len(self.table[position]) <= 1:
+                    self.table[position] = None
+                else:
+                    self.table[position].delete_at_index(index)
+
+                self.count -= 1
                 return
 
         raise KeyError(key)
@@ -70,41 +77,30 @@ class SeparateChainingHashTable(Generic[T]):
             self.table[position] = LinkedList()
 
         # Attempt to find the key in our linked list
-        for index, item in enumerate(self.table[position]):
-            if item[0] == key:
-                # If found update the data
-                self.table[position][index] = (key, data)
-                return
-
-        # Otherwise insert it at the beginning
-        self.table[position].insert(0, (key, data))
+        if len(self.table[position]) > 0:
+            for index, item in enumerate(self.table[position]):
+                if item[0] == key:
+                    # If found update the data
+                    self.table[position][index] = (key, data)
+                    return
+                
+        # self.table[position].insert(0, (key, data)) # To insert at the beginning 
+        self.table[position].append((key, data))
         self.count += 1
 
     def __getitem__(self, key: str) -> T:
         """
-        Get the item at a certain key
-        :raises KeyError: when the item doesn't exist
+        Get the data associated with a key
+        :raises KeyError: when the key doesn't exist
         """
-
         position = self.hash(key)
+        if self.table[position] is None:
+            raise KeyError(key)
         for item in self.table[position]:
             if item[0] == key:
                 return item[1]
 
         raise KeyError(key)
-
-    def __contains__(self, key: str) -> bool:
-        """
-        Check if key exists, if so return True, else False
-        """
-        position = self.hash(key)
-        if self.table[position] is None:
-            return False
-
-        for item in self.table[position]:
-            if item[0] == key:
-                return True
-        return False
 
     def is_empty(self):
         """
@@ -123,7 +119,7 @@ class SeparateChainingHashTable(Generic[T]):
         a = 31415
         for char in key:
             value = (ord(char) + a * value) % len(self.table)
-            a = a * SeparateChainingHashTable.DEFAULT_HASH_BASE % (len(self.table) - 1)
+            a = a * HashTableSeparateChaining.DEFAULT_HASH_BASE % (len(self.table) - 1)
         return value
 
     def insert(self, key: str, data: T) -> None:
@@ -132,6 +128,44 @@ class SeparateChainingHashTable(Generic[T]):
         :see: #__setitem__(self, key: str, data: T)
         """
         self[key] = data
+
+    def __iter__(self):
+        """
+        Returns an iterator for the hash table
+        :complexity: O(N) where N number of items in our hash table
+        """
+        for list in self.table:
+            if list is not None:
+                for item in list:
+                    yield item[1]
+
+    def keys(self) -> ArrayR[str]:
+        """
+        Returns all keys in the hash table
+        :complexity: O(N) where N number of items in our hash table
+        """
+        res = ArrayR(self.count)
+        i = 0
+        for list in self.table:
+            if list is not None:
+                for item in list:
+                    res[i] = item[0]
+                    i += 1
+        return res
+
+    def values(self) -> ArrayR[T]:
+        """
+        Returns all values in the hash table
+        :complexity: O(N) where N number of items in our hash table
+        """
+        res = ArrayR(self.count)
+        i = 0
+        for list in self.table:
+            if list is not None:
+                for item in list:
+                    res[i] = item[1]
+                    i += 1
+        return res
 
     def __str__(self) -> str:
         """
@@ -150,13 +184,6 @@ class SeparateChainingHashTable(Generic[T]):
                     first = False
                 result += '\n'
         return result
-
-
-if __name__ == '__main__':
-    dictionary = SeparateChainingHashTable(5)
-
-    for i in range(10):
-        dictionary[str(i)] = i
-
-    for i in range(10):
-        print(dictionary[str(i)])
+    
+    def __repr__(self) -> str:
+        return str(self)

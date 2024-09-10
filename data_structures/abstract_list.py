@@ -7,6 +7,7 @@ T = TypeVar('T')
 __author__ = 'Maria Garcia de la Banda and Brendon Taylor. Modified by Alexey Ignatiev'
 __docformat__ = 'reStructuredText'
 
+
 class List(ABC, Generic[T]):
     """ Abstract class for a generic List. """
     def __init__(self) -> None:
@@ -27,7 +28,7 @@ class List(ABC, Generic[T]):
         """ Return the size of the list. """
         return self.length
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ Magic method constructing a string representation of the list object. """
         result = '['
         for i in range(len(self)):
@@ -65,6 +66,6 @@ class List(ABC, Generic[T]):
         """ Check if the list of empty. """
         return len(self) == 0
 
-    def clear(self):
+    def clear(self) -> None:
         """ Clear the list. """
         self.length = 0

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """ Basic class implementation of an array of references for FIT units
 
 The code for the init function is a bit cryptic, so I explain it here in
@@ -17,9 +18,10 @@ __author__ = "Julian Garcia for the __init__ code, Maria Garcia de la Banda for 
 __docformat__ = 'reStructuredText'
 
 from ctypes import py_object
-from typing import TypeVar, Generic
+from typing import Generic, Union, TypeVar
 
 T = TypeVar('T')
+
 
 class ArrayR(Generic[T]):
     def __init__(self, length: int) -> None:
@@ -29,8 +31,8 @@ class ArrayR(Generic[T]):
         """
         if length <= 0:
             raise ValueError("Array length should be larger than 0.")
-        self.array = (length * py_object)() # initialises the space
-        self.array[:] =  [None for _ in range(length)]
+        self.array = (length * py_object)()  # initialises the space
+        self.array[:] = [None for _ in range(length)]
 
     def __len__(self) -> int:
         """ Returns the length of the array
@@ -51,19 +53,32 @@ class ArrayR(Generic[T]):
         :pre: index in between 0 and length - self.array[] checks it
         """
         self.array[index] = value
-    
-    def index(self, item: T) -> int:
-        for index, arr_item in enumerate(self.array):
-            if arr_item == item:
-                return index
-        else:
-            raise ValueError("Value does not exist")
-    
+
+    @classmethod
+    def from_list(cls, lst: list) -> Union[ArrayR, None]:
+        """ Creates an ArrayR from a list
+        :complexity: O(n) where n is the length of the list
+        """
+        if len(lst) == 0:
+            return None
+        new_array = cls(len(lst))
+        new_array.array[:] = lst
+        return new_array
+
+    def to_list(self) -> list:
+        """ Returns a list representation of the array
+        :complexity: O(n) where n is the length of the array
+        """
+        return [self.array[i] for i in range(len(self))]
+
     def __str__(self) -> str:
-        ret_str = "["
-        for i, item in enumerate(self.array):
-            ret_str += str(item)
-            ret_str += ", "
-        
-        ret_str = ret_str[:-2] + "]"
-        return ret_str
+        """ Returns a string representation of the array
+        :complexity: O(n) where n is the length of the array
+        """
+        return str([self.array[i] for i in range(len(self))])
+
+    def __repr__(self) -> str:
+        """ Returns a string representation of the array for debugging purposes
+        :complexity: O(n) where n is the length of the array
+        """
+        return str(self)

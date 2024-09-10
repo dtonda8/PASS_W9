@@ -5,6 +5,7 @@
 from __future__ import annotations
 from data_structures.set_adt import Set
 
+
 class BSet(Set[int]):
     """A bit-vector implementation of the set ADT. The set is represented
         as an integer. The element is present in the set if and only if the
@@ -17,6 +18,7 @@ class BSet(Set[int]):
     def __init__(self, dummy_capacity: int = 1) -> None:
         """ Initialization. """
         Set.__init__(self)
+        self.elems = 0
 
     def clear(self) -> None:
         """ Makes the set empty. """
@@ -32,7 +34,7 @@ class BSet(Set[int]):
         """
         if not isinstance(item, int) or item <= 0:
             raise TypeError('Set elements should be integers')
-        return (self.elems >> (item - 1)) & 1
+        return (self.elems >> (item - 1)) & 1 == 1
 
     def __len__(self) -> int:
         """
@@ -67,7 +69,7 @@ class BSet(Set[int]):
 
     def union(self, other: BSet[int]) -> BSet[int]:
         """ Creates a new set equal to the union with another one,
-        i.e. the result set should contains the elements of self and other.
+        i.e. the result set should contain the elements of self and other.
         """
         res = BSet()
         res.elems = self.elems | other.elems
@@ -91,12 +93,11 @@ class BSet(Set[int]):
         res.elems = self.elems & ~other.elems
         return res
 
-    def __len__(self) -> int:
-        """
-        Size computation. The most expensive operation.
-        Use int.bit_length(your_integer) to calculate the bit length.
-        """
-        return bin(self.elems).count('1')
+    def __and__(self, other: BSet):
+        return self.intersection(other)
+
+    def __or__(self, other: BSet):
+        return self.union(other)
 
     def __str__(self):
         """ Construct a nice string representation. """
@@ -109,6 +110,7 @@ class BSet(Set[int]):
                 bit_elems &= ~(1 << current)
             current += 1
         return '{' + ', '.join(out_elems) + '}'
+
 
 if __name__ == '__main__':
     s = BSet(3)

@@ -1,13 +1,11 @@
-"""
-    Array-based implementation of SortedList ADT.
-    Items to store should be of time ListItem.
-"""
+""" Array-based implementation of SortedList ADT. """
 
 from data_structures.referential_array import ArrayR
-from data_structures.sorted_list_adt import *
+from data_structures.abstract_sorted_list import SortedList, T
 
-__author__ = 'Maria Garcia de la Banda and Brendon Taylor. Modified by Alexey Ignatiev and Graeme Gange'
+__author__ = 'Maria Garcia de la Banda and Brendon Taylor. Modified by Alexey Ignatiev'
 __docformat__ = 'reStructuredText'
+
 
 class ArraySortedList(SortedList[T]):
     """ SortedList ADT implemented with arrays. """
@@ -20,8 +18,7 @@ class ArraySortedList(SortedList[T]):
         SortedList.__init__(self)
 
         # initialising the internal array
-        size = max(self.MIN_CAPACITY, max_capacity)
-        self.array = ArrayR(size)
+        self.array = ArrayR(max(self.MIN_CAPACITY, max_capacity))
 
     def reset(self):
         """ Reset the list. """
@@ -29,32 +26,17 @@ class ArraySortedList(SortedList[T]):
 
     def __getitem__(self, index: int) -> T:
         """ Magic method. Return the element at a given position. """
+        if index < 0 or len(self) <= index:
+            raise IndexError('Out of bounds access in array.')
         return self.array[index]
 
-    def __setitem__(self, index: int, item: ListItem) -> None:
-        """ Magic method. Insert the item at a given position,
-            if possible (!). Shift the following elements to the right.
-        """
-        if self.is_empty() or \
-                (index == 0 and item.key <= self[index].key) or \
-                (index == len(self) and self[index - 1].key <= item.key) or \
-                (index > 0 and self[index - 1].key <= item.key <= self[index].key):
-
-            if self.is_full():
-                self._resize()
-
-            self._shuffle_right(index)
-            self.array[index] = item
-        else:
-            # the list isn't empty and the item's position is wrong wrt. its neighbours
-            raise IndexError('Element should be inserted in sorted order')
-
-    def __contains__(self, item: ListItem):
-        """ Checks if value is in the list. """
-        for i in range(len(self)):
-            if self.array[i] == item:
-                return True
-        return False
+    def __contains__(self, item):
+        """ Checks if item is in the list. """
+        try:
+            _ = self.index(item)
+            return True
+        except ValueError:
+            return False
 
     def _shuffle_right(self, index: int) -> None:
         """ Shuffle items to the right up to a given position. """
@@ -78,49 +60,61 @@ class ArraySortedList(SortedList[T]):
         # referring to the new array
         self.array = new_array
 
-    def delete_at_index(self, index: int) -> ListItem:
+    def delete_at_index(self, index: int) -> T:
         """ Delete item at a given position. """
-        if index >= len(self):
-            raise IndexError('No such index in the list')
-        item = self.array[index]
+        item = self[index]
         self.length -= 1
         self._shuffle_left(index)
         return item
 
-    def index(self, item: ListItem) -> int:
-        """ Find the position of a given item in the list. """
-        pos = self._index_to_add(item)
-        if pos < len(self) and self[pos] == item:
-            return pos
-        raise ValueError('item not in list')
+    def index(self, item: T) -> int:
+        """
+            Find the position of a given item in the list,
+            by means of calling the _index_to_add() method.
+            Raise ValueError if the item is not found.
+        """
+        # try find the index
+        index = self._index_to_add(item)
+
+        if index < len(self) and self.array[index] == item:
+            return index
+        raise ValueError(f"{item} not found")
 
     def is_full(self):
         """ Check if the list is full. """
         return len(self) >= len(self.array)
 
-    def add(self, item: ListItem) -> None:
+    def add(self, item: T) -> None:
         """ Add new element to the list. """
         if self.is_full():
             self._resize()
-
-        # find where to place it
-        position = self._index_to_add(item)
-
-        self[position] = item
+        index = self._index_to_add(item)
+        self._shuffle_right(index)
+        self.array[index] = item
         self.length += 1
 
-    def _index_to_add(self, item: ListItem) -> int:
-        """ Find the position where the new item should be placed. """
+    def _index_to_add(self, item: T) -> int:
+        """ Find the position where the new item should be placed.
+        :complexity best: O(comp)   item is the middle element
+        :complexity worst: O(logn * comp)  first or last element
+                    comp - cost of comparision
+                    n - length of the list
+        """
+
         low = 0
         high = len(self) - 1
 
+        # until we have checked all elements in the search space
         while low <= high:
             mid = (low + high) // 2
-            if self[mid].key < item.key:
-                low = mid + 1
-            elif self[mid].key > item.key:
-                high = mid - 1
-            else:
+            # Found the item
+            if self[mid] == item:
                 return mid
+            # check right of the remaining list
+            elif self[mid] < item:
+                low = mid + 1
+            # check left of the remaining list
+            else:
+                high = mid - 1
 
         return low

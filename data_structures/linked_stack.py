@@ -3,20 +3,8 @@
 __author__ = 'Maria Garcia de la Banda, modified by Brendon Taylor and Alexey Ignatiev'
 __docformat__ = 'reStructuredText'
 
+from data_structures.node import Node
 from data_structures.stack_adt import *
-
-class Node(Generic[T]):
-    """ Implementation of a generic Node class.
-
-        Attributes:
-            item (T): the data to be stored by the node
-            link (Node[T]): reference to the next node
-    """
-
-    def __init__(self, item: T = None) -> None:
-        """ Object initializer. """
-        self.item = item
-        self.next = None
 
 
 class LinkedStack(Stack[T]):
@@ -55,7 +43,7 @@ class LinkedStack(Stack[T]):
             :complexity: O(1)
         """
         new_node = Node(item)
-        new_node.next = self.top
+        new_node.link = self.top
         self.top = new_node
         self.length += 1
 
@@ -69,7 +57,7 @@ class LinkedStack(Stack[T]):
             raise Exception('Stack is empty')
 
         item = self.top.item
-        self.top = self.top.next
+        self.top = self.top.link
         self.length -= 1
         return item
 
